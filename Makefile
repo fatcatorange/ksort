@@ -37,7 +37,7 @@ rmmod:
 
 check: all
 	$(MAKE) insmod
-	sudo ./user
+	sudo ./user timsort
 	sudo ./test_xoro
 	$(MAKE) rmmod
 

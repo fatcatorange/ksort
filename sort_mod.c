@@ -3,6 +3,8 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+#include <linux/sort.h>
+#include <linux/string.h>
 #include <linux/version.h>
 
 #include "sort.h"
@@ -19,6 +21,8 @@ static struct cdev cdev;
 static struct class *class;
 
 struct workqueue_struct *workqueue;
+
+int sort_type = 0;  // default
 
 static int sort_open(struct inode *inode, struct file *file)
 {
@@ -74,6 +78,19 @@ static ssize_t sort_write(struct file *file,
                           size_t size,
                           loff_t *offset)
 {
+    void *type_buffer = kmalloc(size, GFP_KERNEL);
+    int ret = copy_from_user(type_buffer, buf, size);
+
+    if (ret == 0) {
+        if (strcmp("default", type_buffer) == 0) {
+            sort_type = 0;
+        } else if (strcmp("timsort", type_buffer) == 0) {
+            sort_type = 1;
+        } else if (strcmp("??", type_buffer) == 0) {
+            sort_type = 0;
+        }
+        printk(KERN_INFO "sort type: %d", sort_type);
+    }
     return 0;
 }
 

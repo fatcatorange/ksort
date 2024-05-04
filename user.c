@@ -2,17 +2,25 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define KSORT_DEV "/dev/sort"
 
-int main()
+int main(int argc, char *argv[])
 {
     int fd = open(KSORT_DEV, O_RDWR);
     if (fd < 0) {
         perror("Failed to open character device");
         goto error;
     }
+
+    if (argc != 2) {
+        goto error;
+    }
+
+    printf("%s\n", argv[1]);
+    ssize_t r_sz = write(fd, argv[1], strlen(argv[1]));
 
     size_t n_elements = 1000;
     size_t size = n_elements * sizeof(int);
@@ -23,7 +31,7 @@ int main()
     for (size_t i = 0; i < n_elements; i++)
         inbuf[i] = rand() % n_elements;
 
-    ssize_t r_sz = read(fd, inbuf, size);
+    r_sz = read(fd, inbuf, size);
     if (r_sz != size) {
         perror("Failed to write character device");
         goto error;
